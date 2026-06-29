@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense, useEffect, useCallback } from "react";
+import { useState, Suspense, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { Eye, EyeOff, Lock, User, AlertCircle, Mail, CheckCircle, ArrowRight, Shield, Zap, BarChart3, Fingerprint, Globe } from "lucide-react";
@@ -109,6 +109,19 @@ function GlowInput({ children }: { children: React.ReactNode }) {
   );
 }
 
+// OTP state and default
+type OtpState = {
+  code: string;
+  expiresAt?: string | null;
+  verified?: boolean;
+};
+
+const emptyOtpState: OtpState = {
+  code: "",
+  expiresAt: null,
+  verified: false,
+};
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -132,8 +145,11 @@ function LoginForm() {
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirmPassword, setRegConfirmPassword] = useState("");
-  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showRegPassword, setShowRegPassword] = useState(false);
   const [registerOtp, setRegisterOtp] = useState<OtpState>(emptyOtpState);
+  const [loginOtp, setLoginOtp] = useState<OtpState>(emptyOtpState);
+  const [success, setSuccess] = useState(false);
+  const [regSuccess, setRegSuccess] = useState(false);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -156,7 +172,6 @@ function LoginForm() {
   }, [loginOtp.expiresAt, success, error]);
 
   const switchMode = (m: "login" | "register") => { setMode(m); setError(""); setRegSuccess(false); };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     clearMessages();
@@ -176,6 +191,15 @@ function LoginForm() {
       router.push(callbackUrl);
       router.refresh();
     } catch { setError("Login failed. Please try again."); } finally { setIsLoading(false); }
+  };
+
+  // Clear UI messages and temporary OTP states
+  const clearMessages = () => {
+    setError("");
+    setSuccess(false);
+    setRegSuccess(false);
+    setRegisterOtp(emptyOtpState);
+    setLoginOtp(emptyOtpState);
   };
 
   const handleRegister = async (e: React.FormEvent) => {

@@ -403,7 +403,7 @@ export default function AdminLayout({
       <div className="lg:pl-[260px] flex flex-col flex-1 min-h-0 min-w-0">
 
         {/* Top Header */}
-        <header className="sticky top-0 z-30 flex items-center justify-between px-5 lg:px-8 py-3.5 bg-white/70 backdrop-blur-2xl border-b border-slate-200/50 shadow-sm shadow-slate-100/50">
+        <header className="sticky top-0 z-30 flex items-center justify-between px-5 lg:px-8 py-3.5 bg-slate-100 backdrop-blur-2xl border-b border-slate-200/50 shadow-sm shadow-slate-100/50">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
