@@ -155,13 +155,15 @@ async function processWebhook(agentId: string, payload: unknown) {
       ]);
 
       // Increment message count
-      await supabase.rpc("increment_wa_agent_count", { agent_id: agentId }).catch(() => {
+      try {
+        await supabase.rpc("increment_wa_agent_count", { agent_id: agentId });
+      } catch {
         // Fallback if RPC not defined yet
-        supabase
+        await supabase
           .from("whatsapp_agents")
           .update({ message_count: (agent.message_count ?? 0) + 1 })
           .eq("id", agentId);
-      });
+      }
     } catch (err) {
       console.error(`[WA Agent ${agentId}] Failed to process msg:`, err);
     }
